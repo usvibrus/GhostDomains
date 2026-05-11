@@ -106,21 +106,34 @@ def fetch_channel_details(channel_ids):
     return results
 
 
-# Pre-defined search queries for diverse channel discovery
+# Pre-defined search queries — targeting channels likely to have personal websites
+# Focus on professionals, creators and businesses (not pure gaming/entertainment)
 SEARCH_QUERIES = [
-    'tech review',
-    'cooking recipe',
-    'fitness workout',
-    'travel vlog',
-    'gaming tutorial',
-    'photography tips',
-    'music production',
-    'business startup',
-    'education learning',
-    'science experiment',
-    'art drawing',
-    'fashion style',
-    'health wellness',
-    'coding programming',
-    'DIY crafts',
+    # Professionals / freelancers
+    'web design portfolio',
+    'graphic design freelancer',
+    'photographer portfolio',
+    'digital marketing agency',
+    'SEO consultant blog',
+    'web developer tutorial',
+    'UX design tips',
+    'video editor freelance',
+    # Niche bloggers / content creators
+    'personal finance blog',
+    'food recipe blog',
+    'travel blog vlog',
+    'fitness coaching',
+    'health wellness coach',
+    'online business tips',
+    'real estate investing',
+    'photography tips tutorial',
+    # Small business / education
+    'small business marketing',
+    'online course creator',
+    'podcast creator tips',
+    'music producer beats',
+    'art tutorial painting',
+    'coding bootcamp tutorial',
+    'DIY home improvement',
+    'interior design tips',
 ]
