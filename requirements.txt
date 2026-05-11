@@ -1,0 +1,19 @@
+# ─── GhostDomains Production Dependencies ───
+
+# Web framework
+flask>=3.1.0
+flask-cors>=5.0.0
+flask-limiter>=3.8.0
+gunicorn>=23.0.0
+
+# Database
+psycopg2-binary>=2.9.9
+
+# Scraper
+python-whois>=0.9.4
+dnspython>=2.6.1
+requests>=2.32.0
+tenacity>=9.0.0
+
+# Config
+python-dotenv>=1.0.1
