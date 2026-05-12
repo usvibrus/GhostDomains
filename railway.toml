@@ -8,22 +8,3 @@ healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 
-# Cron jobs — Railway runs these on schedule
-# Syntax: "minute hour day month weekday"
-[[cronJobs]]
-name = "daily-youtube-scrape"
-schedule = "0 2 * * *"
-command = "python cron.py"
-environment = { SCRAPER_MODE = "youtube" }
-
-[[cronJobs]]
-name = "daily-external-scrape"
-schedule = "0 3 * * *"
-command = "python cron.py"
-environment = { SCRAPER_MODE = "external" }
-
-[[cronJobs]]
-name = "recheck-domains"
-schedule = "0 */6 * * *"
-command = "python cron.py"
-environment = { SCRAPER_MODE = "recheck" }
