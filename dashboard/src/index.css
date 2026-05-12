@@ -676,6 +676,19 @@ body {
   background: rgba(0, 212, 170, 0.2);
 }
 
+.action-btn.save.saved-active {
+  background: rgba(0, 184, 148, 0.15);
+  color: var(--accent-green);
+  border-color: rgba(0, 184, 148, 0.4);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
 .action-btn.export {
   background: transparent;
   color: var(--text-secondary);

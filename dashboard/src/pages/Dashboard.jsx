@@ -41,7 +41,6 @@ export default function Dashboard() {
           <button className="header-btn" title="Notifications">
             <Bell size={18} />
           </button>
-          <div className="user-avatar">GD</div>
         </div>
       </div>
 

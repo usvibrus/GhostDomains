@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS domain_metrics (
     wayback_snapshots INTEGER DEFAULT 0,
     archive_age_days INTEGER DEFAULT 0,
     google_safe BOOLEAN DEFAULT TRUE,
+    monthly_searches INTEGER DEFAULT 0,
     composite_score REAL DEFAULT 0,
     scored_at TIMESTAMP
 );
