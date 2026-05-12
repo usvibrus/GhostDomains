@@ -10,14 +10,28 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({});
   const [view, setView] = useState('list');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const PER_PAGE = 20;
 
   useEffect(() => {
     setLoading(true);
-    fetchDomains(filters).then((res) => {
-      setDomains(res.data);
-      setLoading(false);
-    });
-  }, [filters]);
+    fetchDomains({ ...filters, page, per_page: PER_PAGE })
+      .then((res) => {
+        setDomains(res.data || []);
+        setTotalPages(res.total_pages || 1);
+        setTotal(res.total || 0);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [filters, page]);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (newFilters) => {
+    setPage(1);
+    setFilters(newFilters);
+  };
 
   return (
     <>
@@ -40,11 +54,19 @@ export default function Dashboard() {
           </div>
           <FilterBar
             filters={filters}
-            onFilterChange={setFilters}
+            onFilterChange={handleFilterChange}
             view={view}
             onViewChange={setView}
           />
-          <DomainTable domains={domains} loading={loading} />
+          <DomainTable
+            domains={domains}
+            loading={loading}
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            perPage={PER_PAGE}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </>

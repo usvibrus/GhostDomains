@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpDown, ChevronUp, ChevronDown, Bookmark, Download, Globe } from 'lucide-react';
+import { ArrowUpDown, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Bookmark, Download, Globe } from 'lucide-react';
 
 function getMetricClass(value, thresholds = [30, 50]) {
   if (value >= thresholds[1]) return 'high';
@@ -25,44 +24,16 @@ function sourceLabel(source) {
   return map[source] || source;
 }
 
-export default function DomainTable({ domains, loading }) {
+export default function DomainTable({
+  domains,
+  loading,
+  page = 1,
+  totalPages = 1,
+  total = 0,
+  perPage = 20,
+  onPageChange,
+}) {
   const navigate = useNavigate();
-  const [sortField, setSortField] = useState('score');
-  const [sortDir, setSortDir] = useState('desc');
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir('desc');
-    }
-  };
-
-  const sorted = [...domains].sort((a, b) => {
-    let aVal, bVal;
-    switch (sortField) {
-      case 'domain': aVal = a.domain; bVal = b.domain; break;
-      case 'expiry': aVal = a.expiry_date || ''; bVal = b.expiry_date || ''; break;
-      case 'da': aVal = a.metrics.domain_authority; bVal = b.metrics.domain_authority; break;
-      case 'pa': aVal = a.metrics.page_authority; bVal = b.metrics.page_authority; break;
-      case 'tf': aVal = a.metrics.trust_flow; bVal = b.metrics.trust_flow; break;
-      case 'backlinks': aVal = a.metrics.backlinks; bVal = b.metrics.backlinks; break;
-      case 'archive': aVal = a.metrics.archive_age_days; bVal = b.metrics.archive_age_days; break;
-      default: aVal = a.metrics.composite_score; bVal = b.metrics.composite_score;
-    }
-    if (typeof aVal === 'string') {
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    }
-    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-  });
-
-  const SortIcon = ({ field }) => {
-    if (sortField !== field) return <ArrowUpDown size={12} className="sort-icon" />;
-    return sortDir === 'asc'
-      ? <ChevronUp size={12} className="sort-icon" />
-      : <ChevronDown size={12} className="sort-icon" />;
-  };
 
   if (loading) {
     return (
@@ -84,37 +55,40 @@ export default function DomainTable({ domains, loading }) {
     );
   }
 
+  // Build page number array with ellipsis for large page counts
+  const getPageNumbers = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [];
+    pages.push(1);
+    if (page > 3) pages.push('...');
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(i);
+    }
+    if (page < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  };
+
+  const start = (page - 1) * perPage + 1;
+  const end = Math.min(page * perPage, total);
+
   return (
     <>
       <table className="data-table">
         <thead>
           <tr>
-            <th className={sortField === 'domain' ? 'sorted' : ''} onClick={() => handleSort('domain')}>
-              Domain Name <SortIcon field="domain" />
-            </th>
-            <th className={sortField === 'expiry' ? 'sorted' : ''} onClick={() => handleSort('expiry')}>
-              Expiration Date <SortIcon field="expiry" />
-            </th>
-            <th className={sortField === 'da' ? 'sorted' : ''} onClick={() => handleSort('da')}>
-              DA <SortIcon field="da" />
-            </th>
-            <th className={sortField === 'pa' ? 'sorted' : ''} onClick={() => handleSort('pa')}>
-              PA <SortIcon field="pa" />
-            </th>
-            <th className={sortField === 'tf' ? 'sorted' : ''} onClick={() => handleSort('tf')}>
-              TF <SortIcon field="tf" />
-            </th>
-            <th className={sortField === 'backlinks' ? 'sorted' : ''} onClick={() => handleSort('backlinks')}>
-              Backlinks <SortIcon field="backlinks" />
-            </th>
-            <th className={sortField === 'archive' ? 'sorted' : ''} onClick={() => handleSort('archive')}>
-              Archive Age <SortIcon field="archive" />
-            </th>
+            <th>Domain Name</th>
+            <th>Expiration Date</th>
+            <th>DA</th>
+            <th>PA</th>
+            <th>TF</th>
+            <th>Backlinks</th>
+            <th>Archive Age</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {sorted.map((d, idx) => (
+          {domains.map((d, idx) => (
             <tr
               key={d.id}
               onClick={() => navigate(`/domain/${d.id}`)}
@@ -126,24 +100,24 @@ export default function DomainTable({ domains, loading }) {
               </td>
               <td>{formatDate(d.expiry_date)}</td>
               <td>
-                <span className={`metric-value ${getMetricClass(d.metrics.domain_authority)}`}>
-                  {d.metrics.domain_authority}
+                <span className={`metric-value ${getMetricClass(d.metrics?.domain_authority ?? 0)}`}>
+                  {d.metrics?.domain_authority ?? 0}
                 </span>
               </td>
               <td>
-                <span className={`metric-value ${getMetricClass(d.metrics.page_authority)}`}>
-                  {d.metrics.page_authority}
+                <span className={`metric-value ${getMetricClass(d.metrics?.page_authority ?? 0)}`}>
+                  {d.metrics?.page_authority ?? 0}
                 </span>
               </td>
               <td>
-                <span className={`metric-value ${getMetricClass(d.metrics.trust_flow, [20, 35])}`}>
-                  {d.metrics.trust_flow}
+                <span className={`metric-value ${getMetricClass(d.metrics?.trust_flow ?? 0, [20, 35])}`}>
+                  {d.metrics?.trust_flow ?? 0}
                 </span>
               </td>
               <td>
-                <span className="metric-value">{d.metrics.backlinks.toLocaleString()}</span>
+                <span className="metric-value">{(d.metrics?.backlinks ?? 0).toLocaleString()}</span>
               </td>
-              <td>{d.metrics.archive_age_days} days</td>
+              <td>{d.metrics?.archive_age_days ?? 0} days</td>
               <td>
                 <div className="actions-cell" onClick={(e) => e.stopPropagation()}>
                   <button className="action-btn save" title="Add to Saved">
@@ -160,13 +134,42 @@ export default function DomainTable({ domains, loading }) {
       </table>
 
       <div className="table-footer">
-        <span className="table-info">Showing {sorted.length} of {sorted.length} domains</span>
+        <span className="table-info">
+          Showing {start}–{end} of {total} domains
+        </span>
         <div className="pagination">
-          <button disabled>←</button>
-          <button className="active">1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>→</button>
+          {/* Prev */}
+          <button
+            onClick={() => onPageChange(page - 1)}
+            disabled={page === 1}
+            className="pagination-btn"
+            title="Previous page"
+          >
+            <ChevronLeft size={14} />
+          </button>
+
+          {/* Page numbers */}
+          {getPageNumbers().map((p, i) =>
+            p === '...'
+              ? <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>…</span>
+              : <button
+                  key={p}
+                  onClick={() => onPageChange(p)}
+                  className={`pagination-btn ${p === page ? 'active' : ''}`}
+                >
+                  {p}
+                </button>
+          )}
+
+          {/* Next */}
+          <button
+            onClick={() => onPageChange(page + 1)}
+            disabled={page === totalPages}
+            className="pagination-btn"
+            title="Next page"
+          >
+            <ChevronRight size={14} />
+          </button>
         </div>
       </div>
     </>
