@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY api/ ./api/
 COPY scraper/ ./scraper/
 COPY sql/ ./sql/
+COPY cron.py ./cron.py
 COPY .env.example ./.env.example
 
 # Copy built React dashboard from frontend stage
