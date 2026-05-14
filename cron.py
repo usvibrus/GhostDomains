@@ -7,7 +7,7 @@ Set SCRAPER_MODE env var to control what runs (default: full).
 import os
 import sys
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 def main():
     mode = os.getenv('SCRAPER_MODE', 'full')
     logger.info(f"=== GhostDomains Cron Job Starting ===")
-    logger.info(f"Time: {datetime.utcnow().isoformat()} UTC")
+    logger.info(f"Time: {datetime.now(timezone.utc).isoformat()} UTC")
     logger.info(f"Mode: {mode}")
     logger.info(f"DB: {'PostgreSQL' if os.getenv('DATABASE_URL','').startswith('postgres') else 'SQLite'}")
 
@@ -30,18 +30,18 @@ def main():
 
     if mode in ('youtube', 'full'):
         logger.info("--- Starting YouTube pipeline ---")
-        from scraper.youtube import run_youtube_pipeline
+        from scraper.main import run_youtube_pipeline
         run_youtube_pipeline()
 
     if mode in ('external', 'full'):
         logger.info("--- Starting External pipeline ---")
-        from scraper.external import run_external_pipeline
+        from scraper.main import run_external_pipeline
         run_external_pipeline()
 
     if mode == 'recheck':
         logger.info("--- Starting Recheck pipeline ---")
-        from scraper.checker import recheck_domains
-        recheck_domains()
+        from scraper.main import run_recheck
+        run_recheck()
 
     logger.info("=== Cron Job Complete ===")
 
